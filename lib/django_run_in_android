@@ -1,0 +1,11 @@
+
+
+first of all find the ip by entering ipconfig in the command prompt:
+then find the ip address of IPv4 in the Wireless LAN Adapter Wi-fi 
+
+then in the baseUrl enter that url as http://192.168....:8000
+then, run the django as python manage.py runserver 192.168....:8000
+
+
+for web version simply run the django server, enter the baseUrl = 'http://127.0.0.1:8000'
+
