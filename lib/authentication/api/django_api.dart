@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,7 +40,10 @@ class DjangoApi {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       final prefs = await SharedPreferences.getInstance();
+      
+
       await prefs.setString('auth_token', result['token']);
+      await prefs.setString('username', result['username']);
       return result;
     } else {
       throw Exception('Failed to login: ${response.body}');
@@ -63,7 +64,7 @@ class DjangoApi {
 
       if (response.statusCode == 200) {
         await prefs.remove('auth_token');
-        print('Logged out successfully');
+        // print('Logged out successfully');
       } else {
         throw Exception('Failed to logout: ${response.body}');
       }
@@ -91,5 +92,11 @@ class DjangoApi {
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('auth_token');
+  }
+
+  Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    // print(prefs.getString('username'));
+    return prefs.getString('username');
   }
 }

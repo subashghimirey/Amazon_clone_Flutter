@@ -1,58 +1,48 @@
 import 'package:ecommerce_app/constants/app_pallete.dart';
-import 'package:ecommerce_app/django_api.dart';
-import 'package:ecommerce_app/home_page.dart.dart';
+import 'package:ecommerce_app/authentication/api/django_api.dart';
 import 'package:ecommerce_app/widgets/auth_field.dart';
 import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
-import 'package:ecommerce_app/widgets/bottom_nav_bar.dart';
-import 'package:ecommerce_app/widgets/signup_page.dart';
+import 'package:ecommerce_app/authentication/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() {
-    return _LoginPageState();
-  }
+class SignUpPage extends StatefulWidget {
+  SignUpPage({super.key});
 
   final api = DjangoApi();
 
-  static route() => MaterialPageRoute(
-        builder: (context) => LoginPage(),
-      );
+  @override
+  State<SignUpPage> createState() {
+    return _SignUpPageState();
+  }
 }
 
-var isLoggedIn = false;
-
-class _LoginPageState extends State<LoginPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _token = '';
 
-  Future<void> _login() async {
+  Future<void> _signup() async {
     try {
-      final result = await widget.api.login(
+      await widget.api.signup(
         _usernameController.text,
+        _emailController.text,
         _passwordController.text,
       );
-      setState(() {
-        _token = result['token'];
-        isLoggedIn = true;
-      });
-      // print('Login successful: Token $_token');
+      // print('Signup successful: $result');
       Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => const BottomNavBar(),
+        builder: (context) => LoginPage(),
       ));
     } catch (err) {
-      print('Login failed: $err');
+      // print('Signup Failed: $err');
+      throw Exception("Some error occured, check internet");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Color.fromARGB(255, 200, 200, 200),
+      // appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Form(
@@ -62,11 +52,8 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Sign In",
-                style: TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
-                ),
+                "Sign Up",
+                style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 30,
@@ -77,27 +64,32 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 15),
               AuthField(
+                hintText: "Email",
+                controller: _emailController,
+              ),
+              const SizedBox(height: 15),
+              AuthField(
                 hintText: "Password",
                 controller: _passwordController,
                 isObscure: true,
               ),
               const SizedBox(height: 15),
               AuthGradientButton(
-                buttonType: "Sign In",
-                authFunc: _login,
+                buttonType: "Sign Up",
+                authFunc: _signup,
               ),
               const SizedBox(height: 15),
               GestureDetector(
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => SignUpPage(),
+                  builder: (context) => LoginPage(),
                 )),
                 child: RichText(
                     text: TextSpan(
-                        text: 'Don\'t have an account? ',
+                        text: 'Already have an account? ',
                         style: Theme.of(context).textTheme.titleMedium,
                         children: [
                       TextSpan(
-                          text: "Sign Up",
+                          text: "Sign In",
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium

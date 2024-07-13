@@ -1,5 +1,6 @@
 import 'package:ecommerce_app/constants/global_variables.dart';
-import 'package:ecommerce_app/home_page.dart.dart';
+import 'package:ecommerce_app/home_page/home_page.dart.dart';
+import 'package:ecommerce_app/account_page/account_page.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatefulWidget {
@@ -18,9 +19,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   List<Widget> pages = [
     HomePage(),
-    const Center(
-      child: Text("Profile page"),
-    ),
+    const AccountPage(),
     const Center(
       child: Text("carts page"),
     )

@@ -17,19 +17,18 @@ class AppTheme {
     appBarTheme:
         const AppBarTheme(backgroundColor: GlobalVariables.greyBackgroundCOlor),
     inputDecorationTheme: InputDecorationTheme(
-      contentPadding: const EdgeInsets.all(27),
+      // contentPadding: const EdgeInsets.all(27),
       enabledBorder: _border(),
       focusedBorder: _border(AppPallete.gradient2),
     ),
   );
 
   static final darkthemeMode = ThemeData.dark().copyWith(
-    scaffoldBackgroundColor: AppPallete.backgroundColor,
-    appBarTheme: const AppBarTheme(backgroundColor: AppPallete.greyColor),
-    inputDecorationTheme: InputDecorationTheme(
-      contentPadding: const EdgeInsets.all(27),
-      enabledBorder: _border(),
+      scaffoldBackgroundColor: AppPallete.backgroundColor,
+      appBarTheme: const AppBarTheme(backgroundColor: AppPallete.greyColor),
+      inputDecorationTheme: InputDecorationTheme(
+        // contentPadding: const EdgeInsets.all(27),
+        enabledBorder: _border(),
         focusedBorder: _border(AppPallete.gradient2),
-    )
-  );
+      ));
 }

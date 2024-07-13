@@ -1,9 +1,8 @@
 import 'package:ecommerce_app/constants/theme.dart';
-import 'package:ecommerce_app/django_api.dart';
+import 'package:ecommerce_app/authentication/api/django_api.dart';
 import 'package:ecommerce_app/widgets/bottom_nav_bar.dart';
-import 'package:ecommerce_app/widgets/login_page.dart';
+// import 'package:ecommerce_app/authentication/pages/login_page.dart';
 import 'package:flutter/material.dart';
-
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +28,8 @@ class MyApp extends StatelessWidget {
             if (snapshot.hasData && snapshot.data != null) {
               return const BottomNavBar();
             } else {
-              return LoginPage();
+              // return LoginPage();
+              return const BottomNavBar();
             }
           }
         },
