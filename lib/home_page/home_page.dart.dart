@@ -1,6 +1,9 @@
 import 'package:ecommerce_app/authentication/api/django_api.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
 import 'package:ecommerce_app/home_page/widgets/address_box.dart';
+import 'package:ecommerce_app/home_page/widgets/carousel_image.dart';
+import 'package:ecommerce_app/home_page/widgets/categories_box.dart';
+import 'package:ecommerce_app/home_page/widgets/deal_of_day.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -102,10 +105,16 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      body: const Column(
-        children: [
-          AddressBox(),
-        ],
+      body: const SingleChildScrollView(
+        child: Column(
+          children: [
+            AddressBox(),
+            CategoriesBox(),
+            CarouselImage(),
+            SizedBox(height: 10),
+            DealOfDay(),
+          ],
+        ),
       ),
     );
   }

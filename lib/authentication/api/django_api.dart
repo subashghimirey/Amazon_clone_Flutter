@@ -40,10 +40,10 @@ class DjangoApi {
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);
       final prefs = await SharedPreferences.getInstance();
-      
 
       await prefs.setString('auth_token', result['token']);
       await prefs.setString('username', result['username']);
+      await prefs.setString('userType', result['type']);
       return result;
     } else {
       throw Exception('Failed to login: ${response.body}');
@@ -98,5 +98,10 @@ class DjangoApi {
     final prefs = await SharedPreferences.getInstance();
     // print(prefs.getString('username'));
     return prefs.getString('username');
+  }
+
+  Future<String?> getUserType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userType');
   }
 }
