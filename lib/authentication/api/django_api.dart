@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:ecommerce_app/models/product.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DjangoApi {
-  final String baseUrl = "http://192.168.1.2:8000";
+  final String baseUrl = "http://192.168.1.5:8000";
 
   // final String baseUrl = kIsWeb ? 'http://127.0.0.1:8000': 'http://192.168.1.2:8000';
 
@@ -103,5 +104,63 @@ class DjangoApi {
   Future<String?> getUserType() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('userType');
+  }
+
+  Future<void> addProduct(Product product) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/products/add/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode(product.toJson()),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to add product: ${response.body}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getProducts(String? category) async {
+    String url = '$baseUrl/api/products/';
+    if (category != null && category.isNotEmpty) {
+      url += '?category=$category';
+    }
+
+    print(url);
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> products = jsonDecode(response.body);
+      // print(products[0]['id']);
+      return products
+          .map((product) => product as Map<String, dynamic>)
+          .toList();
+    } else {
+      throw Exception('Failed to fetch products: ${response.body}');
+    }
+  }
+
+  Future<void> deleteProduct(int productId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/api/products/$productId/'),
+      headers: {
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception('Failed to delete product: ${response.body}');
+    }
   }
 }

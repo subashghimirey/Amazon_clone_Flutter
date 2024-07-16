@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:ecommerce_app/admin_pages/admin_home.dart';
+import 'package:ecommerce_app/admin_pages/widgets/products.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
+import 'package:ecommerce_app/services/admin_services.dart';
 import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
 import 'package:ecommerce_app/widgets/custom_text_Field.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +36,8 @@ class _AddProductState extends State<AddProduct> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
 
+  final AdminServices adminServices = AdminServices();
+
   void _selectImages() async {
     final result = await pickImages();
     setState(() {
@@ -47,6 +52,25 @@ class _AddProductState extends State<AddProduct> {
     _priceController.dispose();
     _quantityController.dispose();
     super.dispose();
+  }
+
+  void addProduct() {
+    adminServices
+        .sellProduct(
+      context: context,
+      name: _productNameController.text,
+      description: _descriptionController.text,
+      price: double.parse(_priceController.text),
+      quantity: double.parse(_quantityController.text),
+      category: categoryValue,
+      images: images,
+    )
+        .then((_) {
+      images.clear();
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => const AdminHome(),
+      ));
+    });
   }
 
   @override
@@ -96,7 +120,6 @@ class _AddProductState extends State<AddProduct> {
                         borderType: BorderType.RRect,
                         radius: const Radius.circular(10),
                         dashPattern: const [8, 4],
-                        // strokeCap: StrokeCap.round,
                         strokeWidth: 1.5,
                         child: const SizedBox(
                           height: 200,
@@ -183,7 +206,10 @@ class _AddProductState extends State<AddProduct> {
               const SizedBox(
                 height: 15,
               ),
-              AuthGradientButton(buttonType: "Add Product", authFunc: () {})
+              AuthGradientButton(
+                buttonType: "Add Product",
+                authFunc: addProduct,
+              ),
             ],
           ),
         )),
