@@ -1,5 +1,6 @@
 import 'package:ecommerce_app/account_page/single_product.dart';
 import 'package:ecommerce_app/authentication/api/django_api.dart';
+import 'package:ecommerce_app/product_details/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -23,7 +24,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
   void getProductData() async {
     final String category = widget.category;
-    final response = await apiService.getProducts(category);
+    final response = await apiService.getProducts(category: category);
     print(response);
     setState(() {
       products = response;
@@ -49,16 +50,25 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 itemBuilder: (context, index) {
                   final product = products![index];
 
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Column(
-                      children: [
-                        SingleProduct(image: product['images'][0]),
-                        Text(
-                          product['name'],
-                          overflow: TextOverflow.ellipsis,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ProductDetailScreen(
+                          product: product,
                         ),
-                      ],
+                      ));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: Column(
+                        children: [
+                          SingleProduct(image: product['images'][0]),
+                          Text(
+                            product['name'],
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

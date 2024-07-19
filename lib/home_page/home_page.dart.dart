@@ -1,5 +1,6 @@
 import 'package:ecommerce_app/authentication/api/django_api.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
+import 'package:ecommerce_app/home_page/search_screen.dart';
 import 'package:ecommerce_app/home_page/widgets/address_box.dart';
 import 'package:ecommerce_app/home_page/widgets/carousel_image.dart';
 import 'package:ecommerce_app/home_page/widgets/categories_box.dart';
@@ -18,6 +19,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void onSearch() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) =>
+            SearchScreen(searchQuery: searchController.text)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,9 +56,10 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(8),
                         elevation: 1,
                         child: TextFormField(
+                          controller: searchController,
                           decoration: InputDecoration(
                             prefixIcon: InkWell(
-                              onTap: () {},
+                              onTap: onSearch,
                               child: const Padding(
                                 padding: EdgeInsets.only(left: 10),
                                 child: Icon(

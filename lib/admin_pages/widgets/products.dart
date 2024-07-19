@@ -25,7 +25,7 @@ class _ProductsState extends State<Products> {
 
   void getProductData() async {
     // get products from the server
-    final response = await apiService.getProducts(selectedCategory);
+    final response = await apiService.getProducts(category:  selectedCategory);
     setState(() {
       products = response;
     });

@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DjangoApi {
-  final String baseUrl = "http://192.168.1.5:8000";
+  final String baseUrl = "http://192.168.1.8:8000";
 
   // final String baseUrl = kIsWeb ? 'http://127.0.0.1:8000': 'http://192.168.1.2:8000';
 
@@ -124,10 +124,21 @@ class DjangoApi {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getProducts(String? category) async {
+  Future<List<Map<String, dynamic>>> getProducts(
+      {String? category, String? search}) async {
     String url = '$baseUrl/api/products/';
+    Map<String, String> queryParams = {};
+
     if (category != null && category.isNotEmpty) {
-      url += '?category=$category';
+      queryParams['category'] = category;
+    }
+
+    if (search != null && search.isNotEmpty) {
+      queryParams['search'] = search;
+    }
+
+    if (queryParams.isNotEmpty) {
+      url += '?' + Uri(queryParameters: queryParams).query;
     }
 
     print(url);
@@ -139,7 +150,6 @@ class DjangoApi {
 
     if (response.statusCode == 200) {
       final List<dynamic> products = jsonDecode(response.body);
-      // print(products[0]['id']);
       return products
           .map((product) => product as Map<String, dynamic>)
           .toList();
@@ -161,6 +171,43 @@ class DjangoApi {
 
     if (response.statusCode != 204) {
       throw Exception('Failed to delete product: ${response.body}');
+    }
+  }
+
+  Future<void> addRating(int productId, int rating, String? review) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/products/$productId/ratings/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode({
+        'rating': rating,
+        'review': review,
+      }),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to add rating: ${response.body}');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getRatings(int productId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/products/$productId/ratings/'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> ratings = jsonDecode(response.body);
+      return ratings.map((rating) => rating as Map<String, dynamic>).toList();
+    } else {
+      throw Exception('Failed to fetch ratings: ${response.body}');
     }
   }
 }

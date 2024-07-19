@@ -53,8 +53,8 @@ class _MyAppState extends State<MyApp> {
                 future: apiService.getUserType(),
                 builder: (context, snapshot) {
                   if (userType == "normal") {
-                    return const AdminHome();
-                    // return const BottomNavBar();
+                    // return const AdminHome();
+                    return const BottomNavBar();
                   } else {
                     return const AdminHome();
                     // return BottomNavBar();

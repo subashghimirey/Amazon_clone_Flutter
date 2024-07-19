@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:ecommerce_app/admin_pages/admin_home.dart';
-import 'package:ecommerce_app/admin_pages/widgets/products.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
 import 'package:ecommerce_app/services/admin_services.dart';
 import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
