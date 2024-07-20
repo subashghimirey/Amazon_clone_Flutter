@@ -3,6 +3,7 @@ import 'package:ecommerce_app/constants/global_variables.dart';
 import 'package:ecommerce_app/home_page/search_screen.dart';
 import 'package:ecommerce_app/home_page/widgets/stars.dart';
 import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
+import 'package:ecommerce_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -21,7 +22,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   TextEditingController searchController = TextEditingController();
   TextEditingController _reviewController = TextEditingController();
 
-  double _rating = 3.0;
+  double _rating = 0.0;
+
+  double averageRating = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    getRating();
+  }
 
   @override
   void dispose() {
@@ -36,7 +45,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Future<void> _submitRating() async {
-    final String review = "good";
+    final String review = _reviewController.text;
 
     try {
       print({widget.product['id']});
@@ -50,9 +59,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         _rating = 0.0; // Reset to initial rating
       });
     } catch (e) {
-      print("here some error");
+      print("here some error $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error submitting rating: $e')),
+      );
+    }
+  }
+
+  void getRating() async {
+    final response = await apiService.getRatings(widget.product['id']);
+    print(response.averageRating);
+    setState(() {
+      averageRating = response.averageRating;
+      _rating = response.userRating ?? 0.0;
+    });
+  }
+
+  void addToCart() async {
+    try {
+      await apiService.addToCart(widget.product['id'], 1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Added to cart successfully!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add to cart: $e')),
       );
     }
   }
@@ -178,7 +209,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Container(
                         padding: const EdgeInsets.only(right: 20),
                         alignment: Alignment.topRight,
-                        child: const Stars(rating: 4)),
+                        child: Stars(rating: averageRating)),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -246,8 +277,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: AuthGradientButton(
                       buttonType: "Buy Now",
-                      color1: Colors.orange,
-                      color2: Colors.deepOrange,
+                      color1: Colors.cyan,
+                      color2: Colors.cyanAccent,
                       authFunc: () {}),
                 ),
                 const SizedBox(
@@ -259,7 +290,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       buttonType: "Add to Cart",
                       color1: Color.fromARGB(255, 100, 146, 65),
                       color2: Color.fromARGB(255, 60, 197, 126),
-                      authFunc: () {}),
+                      authFunc: addToCart),
                 ),
                 const SizedBox(
                   height: 15,
@@ -293,7 +324,26 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     });
                   },
                 ),
-                TextButton(onPressed: _submitRating, child: Text("Submit"))
+                const SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: CustomTextField(
+                    hintText: "Write a review",
+                    controller: _reviewController,
+                    maxLines: 1,
+                  ),
+                ),
+                Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
+                    child: AuthGradientButton(
+                      buttonType: "Submit Rating",
+                      authFunc: _submitRating,
+                      color1: Colors.blueAccent,
+                      color2: Colors.lightBlueAccent,
+                    )),
               ],
             ),
           ),

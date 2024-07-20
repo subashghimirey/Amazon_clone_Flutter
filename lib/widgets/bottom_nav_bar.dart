@@ -1,3 +1,5 @@
+import 'package:ecommerce_app/authentication/api/django_api.dart';
+import 'package:ecommerce_app/cart_page/cart_page.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
 import 'package:ecommerce_app/home_page/home_page.dart.dart';
 import 'package:ecommerce_app/account_page/account_page.dart';
@@ -12,23 +14,43 @@ class BottomNavBar extends StatefulWidget {
   }
 }
 
+final apiService = DjangoApi();
+
 class _BottomNavBarState extends State<BottomNavBar> {
   int _page = 0;
   double bottomBarWidth = 42;
   double bottomBarBorderWidth = 5;
+  Map<String, dynamic>? cart;
 
-  List<Widget> pages = [
-    HomePage(),
-    const AccountPage(),
-    const Center(
-      child: Text("carts page"),
-    )
-  ];
+  List<Widget> pages = [];
 
   void _updatePage(int page) {
     setState(() {
       _page = page;
     });
+  }
+
+  void getCart() async {
+    final cartData = await apiService.getCart();
+    setState(() {
+      cart = cartData;
+    });
+    print(cartData);
+  }
+
+  void updateCart() {
+    getCart();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    pages = [
+      HomePage(),
+      const AccountPage(),
+      const CartPage(),
+    ];
+    getCart();
   }
 
   @override
@@ -80,13 +102,15 @@ class _BottomNavBarState extends State<BottomNavBar> {
                               ? GlobalVariables.selectedNavBarColor
                               : GlobalVariables.backgroundColor,
                           width: bottomBarBorderWidth))),
-              child: const Badge(
-                label: Text('3'),
+              child: Badge(
+                label:
+                    Text(cart != null ? cart!['items'].length.toString() : '0'),
                 backgroundColor: GlobalVariables.backgroundColor,
-                padding: EdgeInsets.all(2),
+                // padding: EdgeInsets.all(2),
                 textColor: Colors.black,
-                textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                child: Icon(Icons.shopping_cart),
+                textStyle:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                child: const Icon(Icons.shopping_cart),
               ),
             ),
             label: '',

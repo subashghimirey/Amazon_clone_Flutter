@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:ecommerce_app/models/product.dart';
+import 'package:ecommerce_app/models/product_rating.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DjangoApi {
-  final String baseUrl = "http://192.168.1.8:8000";
+  final String baseUrl = "http://192.168.1.4:8000";
 
   // final String baseUrl = kIsWeb ? 'http://127.0.0.1:8000': 'http://192.168.1.2:8000';
 
@@ -190,24 +191,87 @@ class DjangoApi {
       }),
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode != 201 && response.statusCode != 200) {
       throw Exception('Failed to add rating: ${response.body}');
     }
   }
 
-  Future<List<Map<String, dynamic>>> getRatings(int productId) async {
+  Future<ProductRating> getRatings(int productId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
     final response = await http.get(
       Uri.parse('$baseUrl/api/products/$productId/ratings/'),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
       },
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> ratings = jsonDecode(response.body);
-      return ratings.map((rating) => rating as Map<String, dynamic>).toList();
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      print(responseData);
+      return ProductRating.fromJson(responseData);
     } else {
       throw Exception('Failed to fetch ratings: ${response.body}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getDealOfTheDay() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/deal-of-the-day/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> productData = jsonDecode(response.body);
+      return productData;
+    } else {
+      throw Exception('Failed to fetch deal of the day: ${response.body}');
+    }
+  }
+
+  Future<void> addToCart(int productId, int quantity) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/cart/add/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode({
+        'product_id': productId,
+        'quantity': quantity,
+      }),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to add to cart: ${response.body}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getCart() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/cart/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load cart: ${response.body}');
     }
   }
 }

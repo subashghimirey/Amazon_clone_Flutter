@@ -8,7 +8,9 @@ import 'package:ecommerce_app/home_page/widgets/deal_of_day.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key});
+  HomePage({
+    super.key,
+  });
 
   final apiService = DjangoApi();
 
@@ -31,6 +33,11 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) =>
             SearchScreen(searchQuery: searchController.text)));
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override

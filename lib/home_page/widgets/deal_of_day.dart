@@ -1,5 +1,6 @@
+import 'package:ecommerce_app/authentication/api/django_api.dart';
+import 'package:ecommerce_app/product_details/product_detail_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class DealOfDay extends StatefulWidget {
   const DealOfDay({super.key});
@@ -8,78 +9,136 @@ class DealOfDay extends StatefulWidget {
   State<DealOfDay> createState() => _DealOfDayState();
 }
 
+final apiService = DjangoApi();
+
 class _DealOfDayState extends State<DealOfDay> {
+  Map<String, dynamic>? dealOfDay;
+  List<Map<String, dynamic>> products = [];
+
+  void getDealOfDay() async {
+    final deal = await apiService.getDealOfTheDay();
+    setState(() {
+      if (deal.isEmpty) {
+        dealOfDay = products.isNotEmpty ? products[0] : null;
+      } else {
+        dealOfDay = deal;
+      }
+    });
+    print("$dealOfDay");
+  }
+
+  void getProducts() async {
+    products = await apiService.getProducts();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDealOfDay();
+    getProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.only(left: 10),
-          alignment: Alignment.topLeft,
-          child: const Text(
-            "Deal of the day",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-          ),
-        ),
-        Image.asset(
-          height: 240,
-          "assets/images/laptop.png",
-          fit: BoxFit.cover,
-        ),
-        Container(
-          padding: const EdgeInsets.only(left: 30),
-          alignment: Alignment.topLeft,
-          child: const Text(
-            "Rs.250,000",
-            style: TextStyle(
-              fontSize: 18,
-            ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.only(left: 30),
-          alignment: Alignment.topLeft,
-          child: const Text(
-            "Mac Book Air pro",
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 18,
-            ),
-          ),
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
+    return dealOfDay == null
+        ? Center(child: CircularProgressIndicator())
+        : Column(
             children: [
-              Image.network(
-                "https://www.apple.com/newsroom/images/product/mac/standard/Apple-MacBook-Air-and-MacBook-Pro-update-graphics-screen-070919_inline.jpg.large.jpg",
-                height: 300,
-                width: 500,
+              Container(
+                padding: const EdgeInsets.only(left: 10),
+                alignment: Alignment.topLeft,
+                child: const Text(
+                  "Deal of the day",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                ),
               ),
-              Image.network(
-                "https://static-01.daraz.com.np/p/01107bf10c6441bb8ebdf93d8a9e791b.jpg",
-                height: 300,
-                width: 500,
+              GestureDetector(
+                onTap: () {
+                  if (dealOfDay != null) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailScreen(
+                          product: dealOfDay!,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: dealOfDay != null &&
+                        dealOfDay!['images'] != null &&
+                        dealOfDay!['images'].isNotEmpty
+                    ? Image.network(
+                        dealOfDay!['images'][0],
+                        height: 300,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        height: 300,
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: Text('No image available'),
+                        ),
+                      ),
               ),
-              Image.network(
-                "https://imageio.forbes.com/specials-images/imageserve/5fb3d1fa8e17f0f68a05b87f/The-new-MacBook-Air-with-M1-processor-/960x0.jpg?format=jpg&width=960",
-                height: 300,
-                width: 500,
+              Container(
+                padding: const EdgeInsets.only(left: 20, top: 5),
+                alignment: Alignment.topLeft,
+                child: dealOfDay != null
+                    ? Text(
+                        dealOfDay!['name'],
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    : Container(),
               ),
+              Container(
+                padding: const EdgeInsets.only(left: 20),
+                alignment: Alignment.topLeft,
+                child: dealOfDay != null
+                    ? Text(
+                        dealOfDay!['price'].toString(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 17,
+                        ),
+                      )
+                    : Container(),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: dealOfDay != null && dealOfDay!['images'] != null
+                      ? dealOfDay!['images']
+                          .map<Widget>(
+                            (image) => Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Image.network(
+                                image,
+                                height: 300,
+                                width: 400,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          )
+                          .toList()
+                      : [Container()],
+                ),
+              ),
+              Container(
+                alignment: Alignment.topLeft,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15).copyWith(left: 20),
+                child: Text(
+                  "See all deals",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700, color: Colors.cyan[800]),
+                ),
+              )
             ],
-          ),
-        ),
-        Container(
-          alignment: Alignment.topLeft,
-          padding: const EdgeInsets.symmetric(vertical: 15).copyWith(left: 20),
-          child: Text(
-            "See all deals",
-            style:
-                TextStyle(fontWeight: FontWeight.w700, color: Colors.cyan[800]),
-          ),
-        )
-      ],
-    );
+          );
   }
 }

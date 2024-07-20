@@ -4,7 +4,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 class Stars extends StatelessWidget {
   const Stars({super.key, required this.rating});
 
-  final int rating;
+  final double rating;
 
   @override
   Widget build(BuildContext context) {
