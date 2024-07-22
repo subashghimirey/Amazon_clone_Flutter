@@ -17,10 +17,10 @@ class _AdminHomeState extends State<AdminHome> {
   List<Widget> pages = [
     const Products(),
     Center(
-      child: Text("analytics page"),
+      child: const Text("analytics page"),
     ),
     Center(
-      child: Text("all orders"),
+      child: const Text("all orders"),
     ),
   ];
 

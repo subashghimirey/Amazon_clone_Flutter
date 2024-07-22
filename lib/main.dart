@@ -1,13 +1,14 @@
-import 'package:ecommerce_app/admin_pages/admin_home.dart';
+
 import 'package:ecommerce_app/authentication/pages/login_page.dart';
 import 'package:ecommerce_app/constants/theme.dart';
 import 'package:ecommerce_app/authentication/api/django_api.dart';
 import 'package:ecommerce_app/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -34,7 +35,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       userType = type ?? "";
     });
-    print(userType);
+    // print(userType);
   }
 
   @override
@@ -56,8 +57,8 @@ class _MyAppState extends State<MyApp> {
                     // return const AdminHome();
                     return const BottomNavBar();
                   } else {
-                    return const AdminHome();
-                    // return BottomNavBar();
+                    // return const AdminHome();
+                    return const BottomNavBar();
                   }
                 },
               );

@@ -29,16 +29,16 @@ class _ButtonsState extends State<Buttons> {
 
   Future<void> _logout() async {
     try {
-      print("in logout");
+      // print("in logout");
       await widget.apiService.logout();
-      print("logging out");
+      // print("logging out");
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
       );
-      print('Logout successful');
+      // print('Logout successful');
     } catch (e) {
-      print(e);
+      // print(e);
       throw Exception("Some error occured, have patience");
     }
   }

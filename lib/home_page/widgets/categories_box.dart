@@ -27,7 +27,7 @@ class CategoriesBox extends StatelessWidget {
                               ''),
                     ),
                   );
-                  print("tapped on category type");
+                  // print("tapped on category type");
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12)

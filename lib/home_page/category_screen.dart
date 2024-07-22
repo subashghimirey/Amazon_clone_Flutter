@@ -25,11 +25,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
   void getProductData() async {
     final String category = widget.category;
     final response = await apiService.getProducts(category: category);
-    print(response);
+    // print(response);
     setState(() {
       products = response;
     });
-    print(products);
+    // print(products);
   }
 
   @override

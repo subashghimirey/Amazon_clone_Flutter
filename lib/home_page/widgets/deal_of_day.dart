@@ -24,7 +24,7 @@ class _DealOfDayState extends State<DealOfDay> {
         dealOfDay = deal;
       }
     });
-    print("$dealOfDay");
+    // print("$dealOfDay");
   }
 
   void getProducts() async {
@@ -41,15 +41,15 @@ class _DealOfDayState extends State<DealOfDay> {
   @override
   Widget build(BuildContext context) {
     return dealOfDay == null
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : Column(
             children: [
               Container(
-                padding: const EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.only(left: 10, bottom: 5),
                 alignment: Alignment.topLeft,
                 child: const Text(
                   "Deal of the day",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                 ),
               ),
               GestureDetector(
@@ -75,7 +75,7 @@ class _DealOfDayState extends State<DealOfDay> {
                     : Container(
                         height: 300,
                         color: Colors.grey[200],
-                        child: Center(
+                        child: const Center(
                           child: Text('No image available'),
                         ),
                       ),
@@ -115,12 +115,13 @@ class _DealOfDayState extends State<DealOfDay> {
                           .map<Widget>(
                             (image) => Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                                  const EdgeInsets.symmetric(horizontal: 4.0)
+                                      .copyWith(top: 10),
                               child: Image.network(
                                 image,
                                 height: 300,
                                 width: 400,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.fitHeight,
                               ),
                             ),
                           )

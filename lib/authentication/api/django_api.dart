@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DjangoApi {
-  final String baseUrl = "http://192.168.1.4:8000";
+  final String baseUrl = "http://192.168.1.5:8000";
 
   // final String baseUrl = kIsWeb ? 'http://127.0.0.1:8000': 'http://192.168.1.2:8000';
 
@@ -142,7 +142,7 @@ class DjangoApi {
       url += '?' + Uri(queryParameters: queryParams).query;
     }
 
-    print(url);
+    // print(url);
 
     final response = await http.get(
       Uri.parse(url),
@@ -209,7 +209,7 @@ class DjangoApi {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
-      print(responseData);
+      // print(responseData);
       return ProductRating.fromJson(responseData);
     } else {
       throw Exception('Failed to fetch ratings: ${response.body}');
@@ -269,9 +269,29 @@ class DjangoApi {
     );
 
     if (response.statusCode == 200) {
+      // print(response.body);
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to load cart: ${response.body}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getProductById(int productId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/product/$productId/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch product: ${response.body}');
     }
   }
 }

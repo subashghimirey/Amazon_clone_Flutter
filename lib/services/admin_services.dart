@@ -25,7 +25,7 @@ class AdminServices {
           CloudinaryFile.fromFile(images[i].path, folder: name),
         );
         imageUrls.add(response.secureUrl);
-        print("images uploaded");
+        // print("images uploaded");
       }
 
       final product = Product(
@@ -38,7 +38,7 @@ class AdminServices {
 
       await apiService.addProduct(product);
 
-      print("Product added successfully");
+      // print("Product added successfully");
     } catch (err) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(err.toString())));

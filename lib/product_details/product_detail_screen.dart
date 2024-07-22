@@ -2,23 +2,26 @@ import 'package:ecommerce_app/authentication/api/django_api.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
 import 'package:ecommerce_app/home_page/search_screen.dart';
 import 'package:ecommerce_app/home_page/widgets/stars.dart';
+import 'package:ecommerce_app/providers/cart_provider.dart';
 import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
 import 'package:ecommerce_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProductDetailScreen extends StatefulWidget {
+class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({super.key, required this.product});
 
   final Map<String, dynamic> product;
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  ConsumerState<ProductDetailScreen> createState() =>
+      _ProductDetailScreenState();
 }
 
 final apiService = DjangoApi();
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   TextEditingController searchController = TextEditingController();
   TextEditingController _reviewController = TextEditingController();
 
@@ -48,18 +51,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final String review = _reviewController.text;
 
     try {
-      print({widget.product['id']});
+      // print({widget.product['id']});
       await apiService.addRating(widget.product['id'], _rating.toInt(), review);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Rating submitted successfully!')),
       );
-      print("success");
+      // print("success");
       _reviewController.clear();
       setState(() {
         _rating = 0.0; // Reset to initial rating
       });
     } catch (e) {
-      print("here some error $e");
+      // print("here some error $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error submitting rating: $e')),
       );
@@ -68,7 +71,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   void getRating() async {
     final response = await apiService.getRatings(widget.product['id']);
-    print(response.averageRating);
+    // print(response.averageRating);
     setState(() {
       averageRating = response.averageRating;
       _rating = response.userRating ?? 0.0;
@@ -79,7 +82,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     try {
       await apiService.addToCart(widget.product['id'], 1);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Added to cart successfully!')),
+        const SnackBar(content: Text('Added to cart successfully!')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -90,6 +93,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cartNotifier = ref.read(cartNotifierProvider.notifier);
+
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(100),
@@ -287,10 +292,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: AuthGradientButton(
-                      buttonType: "Add to Cart",
-                      color1: Color.fromARGB(255, 100, 146, 65),
-                      color2: Color.fromARGB(255, 60, 197, 126),
-                      authFunc: addToCart),
+                    buttonType: "Add to Cart",
+                    color1:const Color.fromARGB(255, 100, 146, 65),
+                    color2:const Color.fromARGB(255, 60, 197, 126),
+                    authFunc: () async {
+                      await cartNotifier.addToCart(widget.product, 1);
+                    },
+                  ),
                 ),
                 const SizedBox(
                   height: 15,
