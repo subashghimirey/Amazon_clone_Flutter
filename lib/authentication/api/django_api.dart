@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'package:ecommerce_app/models/address.dart';
 import 'package:ecommerce_app/models/product.dart';
 import 'package:ecommerce_app/models/product_rating.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DjangoApi {
-  final String baseUrl = "http://192.168.1.5:8000";
+  final String baseUrl = "http://192.168.1.4:8000";
 
   // final String baseUrl = kIsWeb ? 'http://127.0.0.1:8000': 'http://192.168.1.2:8000';
 
@@ -292,6 +293,60 @@ class DjangoApi {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to fetch product: ${response.body}');
+    }
+  }
+
+  Future<void> removeFromCart(int productId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/api/cart/$productId/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception('Failed to remove product from cart: ${response.body}');
+    }
+  }
+
+  Future<List<Address>> getAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/addresses/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load addresses');
+    }
+  }
+
+  Future<void> createAddress(Address addressData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/addresses/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode(addressData),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create address: ${response.body}');
     }
   }
 }

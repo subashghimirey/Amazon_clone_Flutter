@@ -6,15 +6,18 @@ class AuthGradientButton extends StatelessWidget {
     super.key,
     required this.buttonType,
     required this.authFunc,
+    textColor,
     color1,
     color2,
   })  : color1 = color1 ?? AppPallete.gradient1,
-        color2 = color2 ?? AppPallete.gradient2;
+        color2 = color2 ?? AppPallete.gradient2,
+        textColor = textColor ?? Colors.white;
 
   final String buttonType;
   final void Function() authFunc;
   final Color color1;
   final Color color2;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +41,7 @@ class AuthGradientButton extends StatelessWidget {
         ),
         child: Text(
           buttonType,
-          style: const TextStyle(color: AppPallete.whiteColor, fontSize: 18),
+          style: TextStyle(color: textColor, fontSize: 18),
         ),
       ),
     );

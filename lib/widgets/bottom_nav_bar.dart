@@ -102,8 +102,15 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
                 ),
               ),
               child: Badge(
-                label:
-                    Text(cart != null ? cart['items'].length.toString() : '0'),
+                label: Text(
+                  cart != null && cart['products'] != null
+                      ? cart['products'].length.toString()
+                      : '0',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 backgroundColor: GlobalVariables.backgroundColor,
                 textColor: Colors.black,
                 textStyle: const TextStyle(

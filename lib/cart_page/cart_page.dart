@@ -1,5 +1,10 @@
+import 'package:ecommerce_app/address_page/address_page.dart';
+import 'package:ecommerce_app/cart_page/widgets/cart_product.dart';
+import 'package:ecommerce_app/cart_page/widgets/sub_total.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
+import 'package:ecommerce_app/home_page/widgets/address_box.dart';
 import 'package:ecommerce_app/providers/cart_provider.dart';
+import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,6 +25,9 @@ class _CartPageState extends ConsumerState<CartPage> {
   @override
   Widget build(BuildContext context) {
     final cart = ref.watch(cartNotifierProvider);
+
+    String cartLength =
+        cart!['products'] == null ? "0" : cart['products'].length.toString();
 
     return Scaffold(
       appBar: PreferredSize(
@@ -55,56 +63,48 @@ class _CartPageState extends ConsumerState<CartPage> {
           ),
         ),
       ),
-      body: cart == null
+      body: cart['products'] == null
           ? const Center(
-              child: Text("No items in cart, Add some"),
+              child: Text("No Products in Cart!"),
             )
-          : ListView.builder(
-              itemCount: cart['items'].length,
-              itemBuilder: (context, index) {
-                final cartItem = cart['items'][index];
-                final product = cartItem['product'];
-                return Container(
-                  margin: const EdgeInsets.all(10),
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      )
-                    ],
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  const AddressBox(),
+                  SubTotal(
+                    products: cart['products'],
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: Image.network(
-                              product['images'][0],
-                            ).image,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(product['name']),
-                          Text("Rs. ${product['price']}"),
-                          Text("Quantity: ${cart['items'][index]['quantity']}"),
-                        ],
-                      ),
-                    ],
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    child: AuthGradientButton(
+                      buttonType: "Proceed to Buy ($cartLength)",
+                      color1: const Color.fromARGB(255, 235, 214, 28),
+                      color2: const Color.fromARGB(255, 235, 214, 28),
+                      textColor: Colors.black,
+                      authFunc: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => AddressPage(),
+                        ));
+                      },
+                    ),
                   ),
-                );
-              },
+                  Container(
+                    height: MediaQuery.of(context).size.height *
+                        0.6, // Set a fixed height
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: cart['products'].length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> product = cart['products'][index];
+                        int quantity = product['cartQuantity'];
+
+                        return CartProduct(
+                            product: product, quantity: quantity);
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }

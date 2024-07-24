@@ -10,21 +10,30 @@ class CartNotifier extends StateNotifier<Map<String, dynamic>?> {
     final cartData = await apiService.getCart();
     state = cartData;
 
+    List<Map<String, dynamic>> products = [];
+
     final items = cartData['items'] as List;
-    if (cartData['items'][0]['product'] is int) {
-      for (var item in items) {
-        print(item['product'] is int);
+    for (var item in items) {
+      if (item['product'] is int) {
         final productId = item['product'] as int;
         final product = await apiService.getProductById(productId);
+        product.addAll({"cartQuantity": item['quantity']});
+        products.add(product);
+        // products.add({"cartQuantity": item['quantity']});
         item['product'] = product;
       }
     }
-    state = {...state!, 'items': items};
+    state = {'products': products};
   }
 
   Future<void> addToCart(Map<String, dynamic> product, int quantity) async {
     await apiService.addToCart(product['id'], quantity);
     await getCart(); // Refresh cart after adding an item
+  }
+
+  Future<void> removeFromCart(int productId) async {
+    await apiService.removeFromCart(productId);
+    await getCart(); // Refresh cart after removing an item
   }
 }
 
