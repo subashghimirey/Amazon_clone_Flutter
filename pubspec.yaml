@@ -44,6 +44,11 @@ dependencies:
   cloudinary_public: ^0.23.1
   flutter_rating_bar: ^4.0.1
   flutter_riverpod: ^2.5.1
+  khalti_flutter: ^3.0.0
+  
+
+  
+ 
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +75,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+ 
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -27,13 +27,49 @@ class CartNotifier extends StateNotifier<Map<String, dynamic>?> {
   }
 
   Future<void> addToCart(Map<String, dynamic> product, int quantity) async {
+    // Update state optimistically
+    final updatedCart = {...?state};
+    final updatedProducts =
+        List<Map<String, dynamic>>.from(updatedCart['products'] ?? []);
+
+    final existingProductIndex =
+        updatedProducts.indexWhere((p) => p['id'] == product['id']);
+    if (existingProductIndex != -1) {
+      updatedProducts[existingProductIndex]['cartQuantity'] += quantity;
+    } else {
+      updatedProducts.add({...product, 'cartQuantity': quantity});
+    }
+
+    updatedCart['products'] = updatedProducts;
+    state = updatedCart;
+
+    // Send request to backend
     await apiService.addToCart(product['id'], quantity);
-    await getCart(); // Refresh cart after adding an item
+
+    // Fetch the latest cart data to ensure consistency
+    // await getCart();
   }
 
   Future<void> removeFromCart(int productId) async {
+    // Update state optimistically
+    final updatedCart = {...?state};
+    final updatedProducts =
+        List<Map<String, dynamic>>.from(updatedCart['products'] ?? []);
+
+    final existingProductIndex =
+        updatedProducts.indexWhere((p) => p['id'] == productId);
+    if (existingProductIndex != -1) {
+      updatedProducts.removeAt(existingProductIndex);
+    }
+
+    updatedCart['products'] = updatedProducts;
+    state = updatedCart;
+
+    // Send request to backend
     await apiService.removeFromCart(productId);
-    await getCart(); // Refresh cart after removing an item
+
+    // Fetch the latest cart data to ensure consistency
+    // await getCart();
   }
 }
 

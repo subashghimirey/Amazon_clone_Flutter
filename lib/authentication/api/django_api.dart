@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'package:ecommerce_app/models/address.dart';
 import 'package:ecommerce_app/models/product.dart';
 import 'package:ecommerce_app/models/product_rating.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DjangoApi {
-  final String baseUrl = "http://192.168.1.4:8000";
+  final String baseUrl = "http://192.168.1.3:8000";
 
   // final String baseUrl = kIsWeb ? 'http://127.0.0.1:8000': 'http://192.168.1.2:8000';
 
@@ -313,7 +312,7 @@ class DjangoApi {
     }
   }
 
-  Future<List<Address>> getAddress() async {
+  Future<List<Map<String, dynamic>>> getAddress() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
@@ -326,13 +325,16 @@ class DjangoApi {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      List<dynamic> responseBody = jsonDecode(response.body);
+      // Ensure the response is a List<Map<String, dynamic>>
+      return responseBody.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load addresses');
     }
   }
 
-  Future<void> createAddress(Address addressData) async {
+  Future<void> createAddress(
+      String states, String city, String street, String house) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
@@ -342,7 +344,12 @@ class DjangoApi {
         'Content-Type': 'application/json',
         'Authorization': 'Token $token',
       },
-      body: jsonEncode(addressData),
+      body: jsonEncode({
+        'states': states,
+        'city': city,
+        'street': street,
+        'house_no': house,
+      }),
     );
 
     if (response.statusCode != 201) {

@@ -1,10 +1,10 @@
-
 import 'package:ecommerce_app/authentication/pages/login_page.dart';
 import 'package:ecommerce_app/constants/theme.dart';
 import 'package:ecommerce_app/authentication/api/django_api.dart';
 import 'package:ecommerce_app/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,36 +40,48 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightThemeMode,
-      home: FutureBuilder<String?>(
-        future: apiService.getToken(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else {
-            if (snapshot.hasData && snapshot.data != null) {
-              return FutureBuilder(
-                future: apiService.getUserType(),
-                builder: (context, snapshot) {
-                  if (userType == "normal") {
-                    // return const AdminHome();
-                    return const BottomNavBar();
+    return KhaltiScope(
+        publicKey: "test_public_key_2c4f041f440e47a5a1c2ef3a30da8f5e",
+        builder: (context, navigatorKey) {
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            supportedLocales: const [
+              Locale('en', 'US'),
+              Locale('ne', 'NP'),
+            ],
+            localizationsDelegates: const [
+              KhaltiLocalizations.delegate,
+            ],
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightThemeMode,
+            home: FutureBuilder<String?>(
+              future: apiService.getToken(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return FutureBuilder(
+                      future: apiService.getUserType(),
+                      builder: (context, snapshot) {
+                        if (userType == "normal") {
+                          // return const AdminHome();
+                          return const BottomNavBar();
+                        } else {
+                          // return const AdminHome();
+                          return const BottomNavBar();
+                        }
+                      },
+                    );
                   } else {
+                    return LoginPage();
+                    // return const BottomNavBar();
                     // return const AdminHome();
-                    return const BottomNavBar();
                   }
-                },
-              );
-            } else {
-              return LoginPage();
-              // return const BottomNavBar();
-              // return const AdminHome();
-            }
-          }
-        },
-      ),
-    );
+                }
+              },
+            ),
+          );
+        });
   }
 }
