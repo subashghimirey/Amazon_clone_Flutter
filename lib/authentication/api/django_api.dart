@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DjangoApi {
-  final String baseUrl = "http://192.168.1.3:8000";
+  final String baseUrl = "http://192.168.1.4:8000";
 
   // final String baseUrl = kIsWeb ? 'http://127.0.0.1:8000': 'http://192.168.1.2:8000';
 
@@ -311,6 +311,7 @@ class DjangoApi {
       throw Exception('Failed to remove product from cart: ${response.body}');
     }
   }
+ 
 
   Future<List<Map<String, dynamic>>> getAddress() async {
     final prefs = await SharedPreferences.getInstance();
@@ -356,4 +357,70 @@ class DjangoApi {
       throw Exception('Failed to create address: ${response.body}');
     }
   }
+
+  Future<Map<String, dynamic>> createOrder(List<Map<String, dynamic>> items, double totalAmount, String address) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/orders/create/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode({
+        'items': items,
+        'total_amount': totalAmount,
+        'address': address,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to create order: ${response.body}');
+    }
+  }
+
+ 
+
+
+  Future<List<dynamic>> getOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/orders/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load orders: ${response.body}');
+    }
+  }
+
+  Future<void> clearCart() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    final response = await http.delete(
+      Uri.parse(
+          '$baseUrl/api/cart/clear/'), // Ensure this endpoint matches the new URL
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception('Failed to clear cart: ${response.body}');
+    }
+  }
+
+ 
 }

@@ -2,6 +2,7 @@ import 'package:ecommerce_app/address_page/address_page.dart';
 import 'package:ecommerce_app/cart_page/widgets/cart_product.dart';
 import 'package:ecommerce_app/cart_page/widgets/sub_total.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
+import 'package:ecommerce_app/home_page/category_screen.dart';
 import 'package:ecommerce_app/home_page/widgets/address_box.dart';
 import 'package:ecommerce_app/providers/cart_provider.dart';
 import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
@@ -26,8 +27,8 @@ class _CartPageState extends ConsumerState<CartPage> {
   Widget build(BuildContext context) {
     final cart = ref.watch(cartNotifierProvider);
 
-    String cartLength =
-        cart!['products'] == null ? "0" : cart['products'].length.toString();
+    int cartLength =
+        cart!['products'] == null ? 0 : cart['products'].length;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -74,20 +75,21 @@ class _CartPageState extends ConsumerState<CartPage> {
                   SubTotal(
                     products: cart['products'],
                   ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    child: AuthGradientButton(
-                      buttonType: "Proceed to Buy ($cartLength)",
-                      color1: const Color.fromARGB(255, 235, 214, 28),
-                      color2: const Color.fromARGB(255, 235, 214, 28),
-                      textColor: Colors.black,
-                      authFunc: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => AddressPage(),
-                        ));
-                      },
+                  
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
+                      child: AuthGradientButton(
+                        buttonType: "Proceed to Buy ($cartLength)",
+                        color1: const Color.fromARGB(255, 235, 214, 28),
+                        color2: const Color.fromARGB(255, 235, 214, 28),
+                        textColor: Colors.black,
+                        authFunc: cartLength > 0 ? () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AddressPage(),
+                          ));
+                        } : (){},
+                      ),
                     ),
-                  ),
                   Container(
                     height: MediaQuery.of(context).size.height *
                         0.6, // Set a fixed height

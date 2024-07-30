@@ -1,10 +1,14 @@
+import 'package:ecommerce_app/account_page/account_page.dart';
+import 'package:ecommerce_app/account_page/widgets/order.dart';
 import 'package:ecommerce_app/constants/global_variables.dart';
 import 'package:ecommerce_app/providers/address_provider.dart';
+import 'package:ecommerce_app/providers/order_provier.dart';
 import 'package:ecommerce_app/widgets/auth_gradient_button.dart';
 import 'package:ecommerce_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddressPage extends ConsumerStatefulWidget {
   const AddressPage({super.key});
@@ -19,16 +23,32 @@ class _AddressPageState extends ConsumerState<AddressPage> {
   TextEditingController cityController = TextEditingController();
   TextEditingController stateController = TextEditingController();
 
+  int amount = 0;
+
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    _getStoredSum();
     ref.read(addressNotifierProvider.notifier).getAddress();
+  }
+
+  Future<void> _getStoredSum() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    double? storedSum = prefs.getDouble('sum');
+    print(storedSum);
+    if (storedSum != null) {
+      setState(() {
+        amount = storedSum.toInt();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    String addressToBeUsed = "";
+
     void submitAddress() {
       ref.read(addressNotifierProvider.notifier).createAddress(
             stateController.text,
@@ -45,14 +65,29 @@ class _AddressPageState extends ConsumerState<AddressPage> {
     }
 
     final config = PaymentConfig(
-      amount: 3000,
+      amount: amount > 20000 ? 19900 : amount,
       productIdentity: "test id",
       productName: "test product",
     );
 
-    void onSuccess(PaymentSuccessModel success) {
+    void onSuccess(PaymentSuccessModel success) async {
       print("Payment Success");
       print(success);
+
+      List<Map<String, dynamic>> items =
+          []; // Populate this with the actual cart items
+
+      await ref.read(orderNotifierProvider.notifier).createOrder(
+            items,
+            amount.toDouble(),
+            addressToBeUsed,
+          );
+
+      print("Order created and cart cleared");
+
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => const AccountPage(),
+      ));
     }
 
     void onFailure(PaymentFailureModel failure) {
@@ -63,6 +98,30 @@ class _AddressPageState extends ConsumerState<AddressPage> {
     void onPay() {
       KhaltiScope.of(context)
           .pay(config: config, onSuccess: onSuccess, onFailure: onFailure);
+    }
+
+    void onPressed() {
+      bool isForm = stateController.text.isNotEmpty ||
+          cityController.text.isNotEmpty ||
+          streetController.text.isNotEmpty ||
+          houseController.text.isNotEmpty;
+
+      if (isForm) {
+        if (_formKey.currentState!.validate()) {
+          submitAddress();
+          addressToBeUsed =
+              "Address: ${stateController.text}, ${cityController.text}, ${streetController.text}, ${houseController.text}";
+        } else {
+          throw Exception("Please enter all data");
+        }
+      } else if (data != null) {
+        addressToBeUsed =
+            "Address: ${data[length - 1]['states']}, ${data[length - 1]['city']}, ${data[length - 1]['street']}, ${data[length - 1]['house_no']}";
+      } else {
+        throw Exception("Error!");
+      }
+
+      onPay();
     }
 
     return Scaffold(
@@ -138,7 +197,7 @@ class _AddressPageState extends ConsumerState<AddressPage> {
                   const SizedBox(height: 20),
                   AuthGradientButton(
                     buttonType: "Pay With Khalti",
-                    authFunc: onPay,
+                    authFunc: onPressed,
                     color1: const Color.fromARGB(255, 94, 228, 94),
                     color2: const Color.fromARGB(255, 49, 203, 38),
                     textColor: Colors.black,
